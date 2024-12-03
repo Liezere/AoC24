@@ -33,8 +33,7 @@ task2(Reports, N) :-
     length(SafeReps, N).
 
 dsafe(Ls, 0) :-
-    append([Prefix, [_], Sufix], Ls),
-    append(Prefix, Sufix, Dampened),
+    select(_, Ls, Dampened),
     safe(Dampened, 0),
     !.
 
