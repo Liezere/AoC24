@@ -29,7 +29,9 @@ mulpair(X-Y, Acc, R) :- R is Acc + X * Y.
 % Task 2
 
 task2(Str, X) :-
-    phrase(valid_prefixes(Prefs, Tail), Str),
+    % Append do() to the end to ensure valid_prefixes matches all don't's
+    append(Str, `do()`, Str1),
+    phrase(valid_prefixes(Prefs, Tail), Str1),
     flatten(Prefs, Head),
     append(Head, Tail, Input), !,
     task1(Input, X).
