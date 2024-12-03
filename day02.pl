@@ -4,8 +4,6 @@
 :- use_module(library(dcg/high_order)).
 :- use_module(library(pio)).
 
-:- use_module(library(clpfd)).
-
 :- initialization(main, main).
 
 main(_) :-
@@ -22,9 +20,9 @@ task1(Reports, N) :-
 
 safe([_, _], 0).
 safe([X, Y, Z | Rest], 0) :-
-    abs(X - Y) #=< 3,
-    abs(Y - Z) #=< 3,
-    ( X #< Y, Y #< Z ; X #> Y, Y #> Z ),
+    abs(X - Y) =< 3,
+    abs(Y - Z) =< 3,
+    ( X < Y, Y < Z ; X > Y, Y > Z ),
     safe([Y, Z | Rest], 0).
 
 % Task 2
