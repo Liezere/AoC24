@@ -13,9 +13,9 @@ main(_) :-
     phrase_from_stream((sequence(nonblanks, (blank, \+ eos), In), blank), user_input),
     input_letters(In, 0),
     aggregate_all(count, xmas_pos(_, _, _, _), X1),
-    format("Task1: ~a~n", X1),
+    format("Task 1: ~a~n", X1),
     aggregate_all(count, x_mas_pos(_, _, _, _, _), X2),
-    format("Task1: ~a~n", X2).
+    format("Task 2: ~a~n", X2).
 
 % Parse to DB
 
