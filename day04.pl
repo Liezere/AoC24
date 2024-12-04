@@ -33,20 +33,19 @@ input_letters([L | Ls], X, Y) :-
 
 % Task 1
 
-xmas_pos(X-A, X-B, X-C, X-D) :-
-    abs(A - B) #= 1, abs(B - C) #= 1, abs(C - D) #= 1,
-    letter(X-A, 'X'), letter(X-B, 'M'), letter(X-C, 'A'), letter(X-D, 'S').
-
-xmas_pos(A-Y, B-Y, C-Y, D-Y) :-
-    abs(A - B) #= 1, abs(B - C) #= 1, abs(C - D) #= 1,
-    letter(A-Y, 'X'), letter(B-Y, 'M'), letter(C-Y, 'A'), letter(D-Y, 'S').
-
 xmas_pos(A-I, B-J, C-K, D-L) :-
-    abs(A - B) #= 1, abs(B - C) #= 1, abs(C - D) #= 1,
-    ( chain([A, B, C, D], #>) ; chain([A, B, C, D], #<) ),
-    abs(I - J) #= 1, abs(J - K) #= 1, abs(K - L) #= 1,
-    ( chain([I, J, K, L], #>) ; chain([I, J, K, L], #<) ),
+    (
+        monotone(A, B, C, D), fixed(I, J, K, L)
+    ;   fixed(A, B, C, D), monotone(I, J, K, L)
+    ;   monotone(A, B, C, D), monotone(I, J, K, L)
+    ),
     letter(A-I, 'X'), letter(B-J, 'M'), letter(C-K, 'A'), letter(D-L, 'S').
+
+monotone(A, B, C, D) :-
+    ( Diff = 1 ; Diff = -1 ),
+    A - B #= Diff, B - C #= Diff, C - D #= Diff.
+
+fixed(X, X, X, X).
 
 % Task 2
 
