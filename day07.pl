@@ -20,16 +20,16 @@ solve(Part, Eqs, X) :-
 
 has_solution(Part, eq(Goal, Nums), Goal) :-
     reverse(Nums, Nums1),
-    sol(Part, eq(Goal, Nums1), Goal).
+    sol(Part, eq(Goal, Nums1)).
 
-sol(_, eq(Num, [Num]), Num) :- !.
-sol(P, eq(Goal, [Num | Nums]), Goal) :- sol(P, eq(G0, Nums), G0), Goal is Num + G0.
-sol(P, eq(Goal, [Num | Nums]), Goal) :- sol(P, eq(G0, Nums), G0), Goal is Num * G0.
+sol(_, eq(Num, [Num])) :- !.
+sol(P, eq(Goal, [Num | Nums])) :- sol(P, eq(G0, Nums)), Goal is Num + G0.
+sol(P, eq(Goal, [Num | Nums])) :- sol(P, eq(G0, Nums)), Goal is Num * G0.
 
 % Task 2
 
-sol(part2, eq(Goal, [Num | Nums]), Goal) :-
-    sol(part2, eq(G0, Nums), G0),
+sol(part2, eq(Goal, [Num | Nums])) :-
+    sol(part2, eq(G0, Nums)),
     atomic_list_concat([G0, Num], X),
     atom_number(X, Goal).
 
