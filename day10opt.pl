@@ -3,6 +3,7 @@
 :- use_module(library(dcg/basics)).
 :- use_module(library(dcg/high_order)).
 :- use_module(library(pio)).
+:- use_module(library(clpfd)).
 
 :- dynamic height_at/3.
 
@@ -40,12 +41,12 @@ trail_path(trail(X0-Y0, P1, P2, P3, P4, P5, P6, P7, P8, X9-Y9)) :-
 :- table adjacent_uphil/2.
 adjacent_uphil(X1-Y1, X2-Y2) :-
     height_at(X1, Y1, H1),
-    height_at(X2, Y2, H2),
-    1 is H2 - H1,
+    H2 - H1 #= 1,
     (
-        1 is abs(X1 - X2), Y1 = Y2
-    ;   1 is abs(Y1 - Y2), X1 = X2
-    ).
+        abs(X1 - X2) #= 1, Y1 = Y2
+    ;   abs(Y1 - Y2) #= 1, X1 = X2
+    ),
+    height_at(X2, Y2, H2).
 
 % Task 2
 
