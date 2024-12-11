@@ -13,8 +13,7 @@ stone_count(D, 0, N) :- D1 is D - 1, stone_count(D1, 1, N), !.
 stone_count(D, S, N) :-
     number_codes(S, Ds),
     length(Ds, NDigit),
-    divmod(NDigit, 2, _, 0),
-    Half is NDigit / 2,
+    divmod(NDigit, 2, Half, 0),
     length(Pref, Half),
     append(Pref, Suff, Ds),
     % --
