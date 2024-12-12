@@ -38,11 +38,6 @@ flood_adjacent(X, Y, L, R) :-
     assertz(region_at(X1, Y1, R)),
     forall(flood_adjacent(X1, Y1, L, R), true).
 
-adjacent_region(X, Y, L, R) :-
-    adjacent_coords(X, Y, X1, Y1),
-    map_at(X1, Y1, L),
-    region_at(X1, Y1, R), !.
-
 adjacent_coords(X, Y, X1, Y1) :-
     (
         X1 is X - 1, Y1 = Y
