@@ -26,15 +26,15 @@ execute(Prog, A, Out) :-
 repeatedly(P) --> P, !, repeatedly(P).
 repeatedly(_) --> [].
 
-exec --> instr(0, V), regA(A0, A), { A is A0 // (2 ^ V) }.
-exec --> instr(1, V), regB(B0, B), { B is B0 xor V }.
-exec --> instr(2, V), regB(_, B), { B is V mod 8 }.
-exec --> instr(3, _), regA(0, 0), !.
-exec --> instr(3, Addr), jump(Addr).
-exec --> instr(4, _), regB(B0, B), regC(C, C), { B is B0 xor C }.
-exec --> instr(5, V0), out(V), {V is V0 mod 8}.
-exec --> instr(6, V), regA(A, A), regB(_, B), { B is A // (2 ^ V) }.
-exec --> instr(7, V), regA(A, A), regC(_, C), { C is A // (2 ^ V) }.
+exec --> instr(0, V    ), regA(A0, A), { A is A0 // (2 ^ V) }.
+exec --> instr(1, V    ), regB(B0, B), { B is B0 xor V }.
+exec --> instr(2, V    ), regB(_, B), { B is V mod 8 }.
+exec --> instr(3, _    ), regA(0, 0), !.
+exec --> instr(3, Addr ), jump(Addr).
+exec --> instr(4, _    ), regB(B0, B), regC(C, C), { B is B0 xor C }.
+exec --> instr(5, V0   ), out(V), {V is V0 mod 8}.
+exec --> instr(6, V    ), regA(A, A), regB(_, B), { B is A // (2 ^ V) }.
+exec --> instr(7, V    ), regA(A, A), regC(_, C), { C is A // (2 ^ V) }.
 
 instr(Op, Oper) --> instr_raw(Op, Raw), oper_val(Raw, Oper).
 instr_raw(Op, Raw), [S] --> [S, Op, Raw].
@@ -54,7 +54,7 @@ jump(Addr), [s(P, A, B, C, Out) | P1] -->
         length(Pref, Addr) }.
 
 % Task 2
-task2(Prog, A) :- fixpoint(Prog, 0, 15, A), !.
+task2(Prog, A) :- fixpoint(Prog, 0, 14, A), !.
 
 fixpoint(Prog, A, -1, A) :- execute(Prog, A, Prog).
 fixpoint(Prog, A0, Ord, A) :-
