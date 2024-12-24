@@ -51,13 +51,13 @@ task2(F) :-
     from_file(F, _, Gs),
     check_op(Gs, and, x00, y00, C0),
     check_op(Gs, and, C0, _, C1),
-    thread(2, C1, Gs, false, []).
+    thread(2, C1, Gs, []).
 
 check_op(Gs, Op, Arg1, Arg2, Out) :-
     ( member(g(Op, Arg1, Arg2, Out), Gs) ; member(g(Op, Arg2, Arg1, Out), Gs) ).
 
-thread(45, _, _, _, Fixes) :- print_fixes(sort $ Fixes), !.
-thread(D, CPrev, Gs, IsFix, Fixes) :-
+thread(45, _, _, Fixes) :- print_fixes(sort $ Fixes), !.
+thread(D, CPrev, Gs, Fixes) :-
     xyz_d(D, Xn, Yn, Zn),
     xyz_d(~ is D - 1, Xp, Yp, _),
     check_op(Gs, xor, Xn, Yn, Bn),
@@ -66,10 +66,10 @@ thread(D, CPrev, Gs, IsFix, Fixes) :-
     (
         check_op(Gs, xor, Rn, Bn, Zn)
     ->  check_op(Gs, and, Rn, Bn, Cn),
-        thread(~ is D + 1, Cn, Gs, false, Fixes)
-    ;   fix(IsFix, Gs, Rn, Bn, Zn, W1-W2),
+        thread(~ is D + 1, Cn, Gs, Fixes)
+    ;   fix(Gs, Rn, Bn, Zn, W1-W2),
         swap_wire(W1, W2, Gs, Gs1),
-        thread(D, CPrev, Gs1, false, [W1, W2 | Fixes]), !
+        thread(D, CPrev, Gs1, [W1, W2 | Fixes]), !
     ).
 
 print_fixes(Fixes) :-format("Swaps: ~s~n", [split(~, 0',, maplist(atom_codes, Fixes, ~))]).
@@ -79,9 +79,9 @@ xyz_d(D, Xn, Yn, Zn) :-
     atom_codes(Yn, `y~48t~d~3+` $ D),
     atom_codes(Zn, `z~48t~d~3+` $ D).
 
-fix(false, Gs, Rn, Bn, Zn, Zn-Bad) :- check_op(Gs, xor, Rn, Bn, Bad).
-fix(false, Gs, Rn, Bn, Zn, Bn-Bad) :- check_op(Gs, xor, Rn, Bad, Zn).
-fix(false, Gs, Rn, Bn, Zn, Rn-Bad) :- check_op(Gs, xor, Bad, Bn, Zn).
+fix(Gs, Rn, Bn, Zn, Zn-Bad) :- check_op(Gs, xor, Rn, Bn, Bad).
+fix(Gs, Rn, Bn, Zn, Bn-Bad) :- check_op(Gs, xor, Rn, Bad, Zn).
+fix(Gs, Rn, Bn, Zn, Rn-Bad) :- check_op(Gs, xor, Bad, Bn, Zn).
 
 swap_wire(O1, O2, Gs0, Gs) :-
     select(g(A1, B1, C1, O1), Gs0, g(A1, B1, C1, mark), Gs1),
