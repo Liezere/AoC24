@@ -6,7 +6,7 @@
 :- use_module(library(clpfd)).
 
 :- use_module(library(func)).
-:- use_module(library(lambda)).
+:- use_module(library(list_util)).
 
 :- use_module(utils).
 :- use_module(map_utils).
@@ -14,7 +14,8 @@
 :- dynamic val/2.
 
 % Task 1
-task1(Is, Gs, X) :-
+task1(F, X) :-
+    from_file(F, Is, Gs),
     to_prolog(Is, Gs),
     bagof(Bit-Val, sol_bit(Bit, Val), Bs),
     foldl(bitsum, Bs, 0, X).
@@ -23,8 +24,7 @@ bitsum(B-V, S0, S) :-
     S is S0 + (V << B).
 
 sol_bit(Bit, X) :-
-    val(Id, X),
-    atom_codes(Id, [char_code(z, ~) | Ncs]),
+    atom_codes(val(~, X), [char_code(z, ~) | Ncs]),
     number_codes(Bit, Ncs).
 
 to_prolog(Is, Gs) :-
@@ -39,46 +39,49 @@ calc_val(g(xor, I1, I2, O)) :- assertz((val(O, X) :- val(I1, X1), val(I2, X2), X
 
 % Task 2
 
-%% Thread through assuming
+%% Thread through assuming every bit is calculated as
 %% xi xor yi -> bi
 %% xp and yp -> pi
 %% cp or pi -> ri
 %% ri xor bi -> zi
 %% ri and bi -> ci
+%% If the assumption fails just try to substitue Rn/Bn/Zn with something that could work.
 
-%% Part 2 is solved just by threading until failure, manually adding a swap and retrying.h
+task2(F) :-
+    from_file(F, _, Gs),
+    check_op(Gs, and, x00, y00, C0),
+    check_op(Gs, and, C0, _, C1),
+    thread(2, C1, Gs, false, []).
 
-thread(D, CPrev, Gs) :-
+check_op(Gs, Op, Arg1, Arg2, Out) :-
+    ( member(g(Op, Arg1, Arg2, Out), Gs) ; member(g(Op, Arg2, Arg1, Out), Gs) ).
+
+thread(45, _, _, _, Fixes) :- print_fixes(sort $ Fixes), !.
+thread(D, CPrev, Gs, IsFix, Fixes) :-
     xyz_d(D, Xn, Yn, Zn),
     xyz_d(~ is D - 1, Xp, Yp, _),
-    format("R~d ~4|", [D]),
-    ( member(g(xor, Xn, Yn, Bn), Gs) ; member(g(xor, Yn, Xn, Bn), Gs) ),
-    format("B: ~w  ", [Bn]),
-    ( member(g(and, Xp, Yp, Pn), Gs) ; member(g(and, Yp, Xp, Pn), Gs) ),
-    format("P: ~w  ", [Pn]),
-    ( member(g(or, CPrev, Pn, Rn), Gs) ; member(g(or, Pn, CPrev, Rn), Gs) ),
-    format("R: ~w  ", [Rn]),
-    ( member(g(xor, Rn, Bn, Zn), Gs) ; member(g(xor, Bn, Rn, Zn), Gs) ),
-    format("Z: ~w  ", [Zn]),
-    ( member(g(and, Rn, Bn, Cn), Gs) ; member(g(and, Bn, Rn, Cn), Gs) ),
-    format("C: ~w~n", [Cn]),
-    thread(~ is D + 1, Cn, Gs).
+    check_op(Gs, xor, Xn, Yn, Bn),
+    check_op(Gs, and, Xp, Yp, Pn),
+    check_op(Gs, or, CPrev, Pn, Rn),
+    (
+        check_op(Gs, xor, Rn, Bn, Zn)
+    ->  check_op(Gs, and, Rn, Bn, Cn),
+        thread(~ is D + 1, Cn, Gs, false, Fixes)
+    ;   fix(IsFix, Gs, Rn, Bn, Zn, W1-W2),
+        swap_wire(W1, W2, Gs, Gs1),
+        thread(D, CPrev, Gs1, false, [W1, W2 | Fixes]), !
+    ).
+
+print_fixes(Fixes) :-format("Swaps: ~s~n", [split(~, 0',, maplist(atom_codes, Fixes, ~))]).
 
 xyz_d(D, Xn, Yn, Zn) :-
-    D >= 10,
-    atom_codes(Xn, `x~d` $ D),
-    atom_codes(Yn, `y~d` $ D),
-    atom_codes(Zn, `z~d` $ D), !.
-xyz_d(D, Xn, Yn, Zn) :-
-    atom_codes(Xn, `x0~d` $ D),
-    atom_codes(Yn, `y0~d` $ D),
-    atom_codes(Zn, `z0~d` $ D).
+    atom_codes(Xn, `x~48t~d~3+` $ D),
+    atom_codes(Yn, `y~48t~d~3+` $ D),
+    atom_codes(Zn, `z~48t~d~3+` $ D).
 
-fix(Gs0, Gs) :-
-    swap_wire(z06, fkp, Gs0, Gs1),
-    swap_wire(z11, ngr, Gs1, Gs2),
-    swap_wire(krj, bpt, Gs2, Gs3),
-    swap_wire(z31, mfm, Gs3, Gs).
+fix(false, Gs, Rn, Bn, Zn, Zn-Bad) :- check_op(Gs, xor, Rn, Bn, Bad).
+fix(false, Gs, Rn, Bn, Zn, Bn-Bad) :- check_op(Gs, xor, Rn, Bad, Zn).
+fix(false, Gs, Rn, Bn, Zn, Rn-Bad) :- check_op(Gs, xor, Bad, Bn, Zn).
 
 swap_wire(O1, O2, Gs0, Gs) :-
     select(g(A1, B1, C1, O1), Gs0, g(A1, B1, C1, mark), Gs1),
