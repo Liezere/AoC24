@@ -1,6 +1,6 @@
-:- module(map_utils, [map//1, deep_chars//2, deep_chars/2, assoc_map/2, draw_map/2, move_dir/3]).
+:- module(map_utils, [map//1, deep_chars//2, deep_chars/2, assoc_map/2, draw_map/2, move_dir/3, enumerate0/2]).
 
-map(Map) --> deep_chars(sequence(nonblanks, (blank, \+ blank)), Map).
+map(Map) --> deep_chars(sequence(nonblanks, (blank, \+ blank, \+ eos)), Map).
 
 deep_chars(Element, X) --> call(Element, X0), { deep_chars(X0, X) }.
 

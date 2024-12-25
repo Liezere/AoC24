@@ -27,7 +27,7 @@ from_file(F, Ss) :-
     phrase_from_file(input(Ss), F).
 
 input(Ss) -->
-    sequence(schematic, (blank, blank), Ss).
+    sequence(schematic, (blank, blank), Ss), blank.
 
 schematic([Typ | Hs]) -->
     map(Map),
@@ -38,7 +38,6 @@ schematic([Typ | Hs]) -->
     }.
 
 map_heights([], Hs, Hs).
-map_heights([[] | Rows], Hs, Hs) :- !.
 map_heights([Row | Rows], Hs0, Hs) :-
     maplist(add_blank, Row, Hs0, Hs1),
     map_heights(Rows, Hs1, Hs).
